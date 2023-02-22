@@ -9,13 +9,14 @@ public class GlobalDisplay {
 
     DiscordApi api;
 
-    final Long LEADERBOARDGLOBAL = 1077967028616429618L;
+    final Long LEADERBOARDCHANNEL = 1078027007692116008L;
+    final Long LEADERBOARDMESSAGE = 1078027324118814820L;
     TextChannel channel;
 
     public GlobalDisplay(DiscordApi insertApi){
         this.api = insertApi;
         channel = api
-                .getTextChannelById(LEADERBOARDGLOBAL)
+                .getTextChannelById(LEADERBOARDCHANNEL)
                 .orElseThrow();
     }
 
@@ -28,13 +29,14 @@ public class GlobalDisplay {
                 .setDescription("Meilleurs scores globaux")
                 .addField("Résultats:", leaderboardGlobal.toString());
 
-        Message message = channel.getMessages(1).join().stream().findFirst().orElse(message = null);
+        Message message = channel.getMessageById(LEADERBOARDMESSAGE).join();
 
         if (message == null) {
             channel.sendMessage(global);
         } else {
             message.edit(global);
         }
+
     }
 
 }

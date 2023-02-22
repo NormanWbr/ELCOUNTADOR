@@ -11,7 +11,7 @@ public class LeaderboardData implements Serializable {
 
     @Serial
     private static final long SerialversionUID = 1L;
-    private static final String SAVE_FILEPATH = "src/Sauvegarde/LeaderboardData.ser";
+    private static final String SAVE_FILEPATH = "Sauvegarde/LeaderboardData.ser";
 
     SortedMap<Integer, Long> leaderboard = new TreeMap<>();
     SortedMap<Long, Integer> userPoints = new TreeMap<>();

@@ -21,7 +21,8 @@ public class Main {
 
         api.updateActivity(ActivityType.WATCHING,"le compteur \uD83D\uDC40");
 
-        final Long COUNTADOR = 1077880179097092136L;
+        final Long COUNTADORCHANNELID = 1077880179097092136L;
+        final long COUNTADORADMINCHANNELID = 1078085640366866532L;
 
         LeaderboardGlobal leaderboardGlobal = new LeaderboardGlobal(api);
 
@@ -40,10 +41,11 @@ public class Main {
 
                     Message message = event.getMessage();
 
-                    if (channel.getId() == COUNTADOR) {
+                    if (channel.getId() == COUNTADORCHANNELID) {
 
                         if (messageContent.equals("!clear") && author.isServerAdmin()) {
                             channel.deleteMessages(channel.getMessages(100).join());
+                            channel.sendMessage("1");
                         }
 
                         if (!author.isYourself() && !messageContent.matches("[0-9]+")) {
@@ -72,16 +74,20 @@ public class Main {
                                     leaderboardGlobal.addScore(nbrBefore, author.getId());
                                     leaderboardGlobal.addPointsToUser(author.getId(), -nbrBefore + 1);
 
-                                    globalDisplay.display(leaderboardGlobal);
                                 } else {
                                     leaderboardGlobal.addPointsToUser(author.getId(), 1);
-                                    System.out.println(leaderboardGlobal);
                                 }
+
+                                globalDisplay.display(leaderboardGlobal);
 
                             } else if (nbrNow != 1) {
                                 message.delete();
                             }
                         }
+
+                    }
+
+                    if (channel.getId() == COUNTADORADMINCHANNELID && author.isServerAdmin()) {
 
                     }
 
