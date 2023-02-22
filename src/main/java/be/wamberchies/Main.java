@@ -53,7 +53,7 @@ public class Main {
 
                             Message messageBefore = message.getMessagesBeforeAsStream().findFirst().orElse(null);
 
-                            if (messageBefore != null && !messageBefore.getAuthor().isYourself()) {
+                            if (messageBefore != null) {
 
                                 MessageAuthor authorBefore = messageBefore.getAuthor();
 
@@ -67,17 +67,20 @@ public class Main {
                                     message.delete();
                                     channel.deleteMessages(message.getMessagesBefore(nbrBefore + 1).join());
                                     channel.sendMessage(author.getName() + " à réinitialisé le compteur! Il était à " + nbrBefore + "!");
+                                    channel.sendMessage("1");
+
                                     leaderboardGlobal.addScore(nbrBefore, author.getId());
+                                    leaderboardGlobal.addPointsToUser(author.getId(), -nbrBefore + 1);
+
                                     globalDisplay.display(leaderboardGlobal);
+                                } else {
+                                    leaderboardGlobal.addPointsToUser(author.getId(), 1);
+                                    System.out.println(leaderboardGlobal);
                                 }
 
-                            }else if (nbrNow != 1) {
+                            } else if (nbrNow != 1) {
                                 message.delete();
                             }
-
-                            if (!author.isYourself()){
-                            }
-
                         }
 
                     }
