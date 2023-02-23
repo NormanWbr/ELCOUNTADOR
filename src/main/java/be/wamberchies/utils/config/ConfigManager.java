@@ -1,4 +1,4 @@
-package be.wamberchies.utils;
+package be.wamberchies.utils.config;
 
 import com.moandjiezana.toml.Toml;
 

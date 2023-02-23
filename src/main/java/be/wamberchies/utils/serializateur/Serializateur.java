@@ -1,4 +1,4 @@
-package be.wamberchies.leaderboard;
+package be.wamberchies.utils.serializateur;
 
 import java.io.*;
 

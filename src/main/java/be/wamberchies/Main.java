@@ -1,9 +1,10 @@
 package be.wamberchies;
 
-import be.wamberchies.leaderboard.GlobalDisplay;
+import be.wamberchies.leaderboard.LeaderboardDisplay;
+import be.wamberchies.utils.config.ConfigManager;
 import be.wamberchies.leaderboard.Leaderboard;
-import be.wamberchies.utils.ConfigManager;
 import be.wamberchies.utils.commands.MessageManager;
+import be.wamberchies.utils.game.CountadorPlay;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.activity.ActivityType;
@@ -12,6 +13,8 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.MessageAuthor;
 
 import java.io.File;
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
 
 public class Main {
 
@@ -31,18 +34,25 @@ public class Main {
         api.updateActivity(ActivityType.WATCHING, "le compteur \uD83D\uDC40");
 
         final Long COUNTADORCHANNELID = configManager.getToml().getLong("bot.countadorChannelId");
+
         final Long COUNTADORADMINCHANNELID = configManager.getToml().getLong("bot.countadorAdminChannelId");
 
-        Leaderboard leaderboardGlobal = new Leaderboard(api);
+        Leaderboard leaderboard = new Leaderboard(api);
 
-        GlobalDisplay globalDisplay = new GlobalDisplay(api);
+        LeaderboardDisplay leaderboardDisplay = new LeaderboardDisplay(api);
 
         System.out.println("Le bot est en ligne!");
 
         api.addMessageCreateListener(
                 event -> {
 
-                    char prefix = '!'; // J'ai déjà commencé à écrire avec la variable préfix pour avoir plus de facilité plus tard à faire la transition vers un bot générique et configurable
+                    LocalDateTime now = LocalDateTime.now();
+                    DayOfWeek dayOfWeek = now.getDayOfWeek();
+                    int hour = now.getHour();
+
+                    if (dayOfWeek != DayOfWeek.SATURDAY && dayOfWeek != DayOfWeek.SUNDAY && hour >= 9 && hour < 17) {
+                        System.out.println("L'heure actuelle est entre 9h et 17h du lundi au vendredi.");
+                    }
 
                     String messageContent = event.getMessageContent();
 
@@ -54,54 +64,16 @@ public class Main {
 
                     if (channel.getId() == COUNTADORCHANNELID) {
 
-                        if (messageContent.equals("!clear") && author.isServerAdmin()) {
-                            channel.deleteMessages(channel.getMessages(100).join());
-                            channel.sendMessage("1");
+                        if (CountadorPlay.play(channel, author, message, messageContent, leaderboard, leaderboardDisplay)){
+                            System.out.println("Le chiffre est bon!");
                         }
-
-                        if (!author.isYourself() && !messageContent.matches("[0-9]+")) {
-                            message.delete();
-                        } else if (!author.isYourself()) {
-                            int nbrNow = Integer.parseInt(messageContent);
-
-                            Message messageBefore = message.getMessagesBeforeAsStream().findFirst().orElse(null);
-
-                            if (messageBefore != null) {
-
-                                MessageAuthor authorBefore = messageBefore.getAuthor();
-
-                                String messageContentBefore = messageBefore.getContent();
-
-                                int nbrBefore = Integer.parseInt(messageContentBefore);
-
-                                if (author.getId() == authorBefore.getId() && false) {
-                                    message.delete();
-                                } else if (nbrNow != nbrBefore + 1) {
-                                    message.delete();
-                                    channel.deleteMessages(message.getMessagesBefore(nbrBefore + 1).join());
-                                    channel.sendMessage(author.getName() + " à réinitialisé le compteur! Il était à " + nbrBefore + "!");
-                                    channel.sendMessage("1");
-
-                                    leaderboardGlobal.addScore(nbrBefore, author.getId());
-                                    leaderboardGlobal.addPointsToUser(author.getId(), -nbrBefore + 1);
-
-                                } else {
-                                    leaderboardGlobal.addPointsToUser(author.getId(), 1);
-                                }
-
-                                globalDisplay.display(leaderboardGlobal);
-
-                            } else if (nbrNow != 1) {
-                                message.delete();
-                            }
-                        }
-
 
                     }
 
-                    if (channel.getId() == COUNTADORADMINCHANNELID) {
-                        MessageManager.createMessage(event, leaderboardGlobal);
-                        globalDisplay.display(leaderboardGlobal);
+                    if (author.isServerAdmin() && messageContent.startsWith(configManager.getToml().getString("bot.prefix"))) {
+                        MessageManager.createMessage(event, leaderboard);
+                        message.delete();
+                        leaderboardDisplay.display(leaderboard);
                     }
 
                 });

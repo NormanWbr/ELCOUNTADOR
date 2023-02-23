@@ -1,8 +1,10 @@
 package be.wamberchies.leaderboard;
 
+import be.wamberchies.utils.serializateur.Serializateur;
 import org.javacord.api.DiscordApi;
 
 import java.io.FileNotFoundException;
+import java.util.List;
 import java.util.Map;
 
 public class Leaderboard {
@@ -35,11 +37,11 @@ public class Leaderboard {
     public boolean addScore(int score, long userID) {
 
         int MAX_SCORE_STORED = 5;
-        if (leaderboard.size() < MAX_SCORE_STORED || score > leaderboard.firstKey()){
+        if (leaderboard.size() < MAX_SCORE_STORED || score > leaderboard.getLowestChain().getScore()){
             leaderboard.put(score, userID);
 
             if (leaderboard.size() > MAX_SCORE_STORED) {
-                leaderboard.remove(leaderboard.firstKey());
+                leaderboard.remove(leaderboard.getLowestChain());
             }
 
             leaderboard.save();
@@ -47,29 +49,6 @@ public class Leaderboard {
         }
 
         return false;
-    }
-    
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-
-        for (Map.Entry<Integer, Long> entry: leaderboard.entrySet()) {
-            String username = api.getUserById(entry.getValue()).join().getName();
-            sb.append(
-                    "Meilleur chaîne : %d, cassée par %s\n".formatted(entry.getKey(), username)
-            );
-        }
-
-        sb.append("\n");
-
-        for (Map.Entry<Long, Integer> entry: leaderboard.userPoints.entrySet()) {
-            String username = api.getUserById(entry.getKey()).join().getName();
-            sb.append(
-                    "%s a atteint un score de %d\n".formatted(username, entry.getValue())
-            );
-        }
-        
-        return sb.toString();
     }
 
     /**
@@ -88,5 +67,34 @@ public class Leaderboard {
 
     public void setPoints(Long userId, int setScore) {
         leaderboard.setPoints(userId, setScore);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+
+        List<ChainLeaderboard> sortedChainLeaderboard = leaderboard.getSortedChainLeaderboard();
+        for (ChainLeaderboard chain : sortedChainLeaderboard) {
+            sb.append("%d:    chaîne de %d points, cassée par %s\n".formatted(
+                    sortedChainLeaderboard.indexOf(chain) + 1,
+                    chain.getScore(),
+                    api.getUserById(chain.getUserId()).join().getName())
+            );
+        }
+
+        sb.append("\n");
+
+        Map<Long, Integer> userPointsSorted = leaderboard.getUserPointsSorted();
+        int counter = 1;
+        for (Map.Entry<Long, Integer> userPoint : userPointsSorted.entrySet()) {
+            sb.append("%d:     %s a un score de %d points\n".formatted(
+                    counter,
+                    api.getUserById(userPoint.getKey()).join().getName(),
+                    userPoint.getValue()
+            ));
+            counter++;
+        }
+
+        return sb.toString();
     }
 }

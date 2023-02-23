@@ -2,7 +2,6 @@ package be.wamberchies.utils.commands;
 
 import be.wamberchies.Main;
 import be.wamberchies.commands.*;
-import be.wamberchies.leaderboard.GlobalDisplay;
 import be.wamberchies.leaderboard.Leaderboard;
 import org.javacord.api.event.message.MessageCreateEvent;
 
@@ -36,6 +35,12 @@ public class MessageManager {
                 "Set le rang d'un utilisateur",
                 new CommandResetAll(),
                 "resetAll"
+        ));
+        registry.addCommand(new Command(
+                "clear",
+                "Clear le channel",
+                new CommandClear(),
+                "clear"
         ));
     }
 
