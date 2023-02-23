@@ -1,7 +1,9 @@
 package be.wamberchies;
 
-import be.wamberchies.LeaderBoardGlobal.GlobalDisplay;
-import be.wamberchies.LeaderBoardGlobal.LeaderboardGlobal;
+import be.wamberchies.leaderboard.GlobalDisplay;
+import be.wamberchies.leaderboard.Leaderboard;
+import be.wamberchies.utils.ConfigManager;
+import be.wamberchies.utils.commands.MessageManager;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.activity.ActivityType;
@@ -9,22 +11,29 @@ import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.MessageAuthor;
 
+import java.io.File;
+
 public class Main {
+
+    private static DiscordApi api;
+    private static ConfigManager configManager;
 
     public static void main(String[] args) {
 
-        DiscordApi api = new DiscordApiBuilder()
-                .setToken("")
+        configManager = new ConfigManager(new File(System.getProperty("user.dir"), "config.toml"));
+
+        api = new DiscordApiBuilder()
+                .setToken(configManager.getToml().getString("bot.token"))
                 .setAllIntents()
                 .login()
                 .join();
 
-        api.updateActivity(ActivityType.WATCHING,"le compteur \uD83D\uDC40");
+        api.updateActivity(ActivityType.WATCHING, "le compteur \uD83D\uDC40");
 
-        final Long COUNTADORCHANNELID = 1077880179097092136L;
-        final long COUNTADORADMINCHANNELID = 1078085640366866532L;
+        final Long COUNTADORCHANNELID = configManager.getToml().getLong("bot.countadorChannelId");
+        final Long COUNTADORADMINCHANNELID = configManager.getToml().getLong("bot.countadorAdminChannelId");
 
-        LeaderboardGlobal leaderboardGlobal = new LeaderboardGlobal(api);
+        Leaderboard leaderboardGlobal = new Leaderboard(api);
 
         GlobalDisplay globalDisplay = new GlobalDisplay(api);
 
@@ -32,6 +41,8 @@ public class Main {
 
         api.addMessageCreateListener(
                 event -> {
+
+                    char prefix = '!'; // J'ai déjà commencé à écrire avec la variable préfix pour avoir plus de facilité plus tard à faire la transition vers un bot générique et configurable
 
                     String messageContent = event.getMessageContent();
 
@@ -85,12 +96,18 @@ public class Main {
                             }
                         }
 
+
                     }
 
-                    if (channel.getId() == COUNTADORADMINCHANNELID && author.isServerAdmin()) {
-
+                    if (channel.getId() == COUNTADORADMINCHANNELID) {
+                        MessageManager.createMessage(event, leaderboardGlobal);
+                        globalDisplay.display(leaderboardGlobal);
                     }
 
                 });
+    }
+
+    public static ConfigManager getConfigManager() {
+        return configManager;
     }
 }

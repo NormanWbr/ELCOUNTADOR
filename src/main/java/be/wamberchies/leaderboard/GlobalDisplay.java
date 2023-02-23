@@ -1,5 +1,6 @@
-package be.wamberchies.LeaderBoardGlobal;
+package be.wamberchies.leaderboard;
 
+import be.wamberchies.Main;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.Message;
@@ -9,8 +10,8 @@ public class GlobalDisplay {
 
     DiscordApi api;
 
-    final Long LEADERBOARDCHANNEL = 1078027007692116008L;
-    final Long LEADERBOARDMESSAGE = 1078027324118814820L;
+    final Long LEADERBOARDCHANNEL = Main.getConfigManager().getToml().getLong("bot.leaderboardChannel");
+    final Long LEADERBOARDMESSAGE = Main.getConfigManager().getToml().getLong("bot.leaderboardMessage");
     TextChannel channel;
 
     public GlobalDisplay(DiscordApi insertApi){
@@ -22,7 +23,7 @@ public class GlobalDisplay {
 
 
 
-    public void display(LeaderboardGlobal leaderboardGlobal) {
+    public void display(Leaderboard leaderboardGlobal) {
 
         EmbedBuilder global = new EmbedBuilder()
                 .setAuthor("Leaderboard Global")

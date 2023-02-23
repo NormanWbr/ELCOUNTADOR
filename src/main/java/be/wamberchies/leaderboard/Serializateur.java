@@ -1,4 +1,4 @@
-package be.wamberchies.LeaderBoardGlobal;
+package be.wamberchies.leaderboard;
 
 import java.io.*;
 

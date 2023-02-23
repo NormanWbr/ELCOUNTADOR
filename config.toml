@@ -1,3 +1,5 @@
 [bot]
 prefix = "!"
-token = "MTA3NDYyNjA1Njg4NTExNzAwMA.GiY38f.GdpeGdsu7-aKTtiB3rt6duyqnB2VpDM9lW5Gmc"
+token = "MTA3Nzg3Njc0OTcyMDg4MzI2MA.Gnsizt.8oUgZpfUG2Ht0U_BB4A9dA8EX-hqOXlYkjU-YA"
+countadorChannelId = "1077880179097092136"
+countadorAdmminChannelId = "1078085640366866532"

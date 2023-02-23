@@ -1,11 +1,11 @@
-package be.wamberchies.LeaderBoardGlobal;
+package be.wamberchies.leaderboard;
 
 import org.javacord.api.DiscordApi;
 
 import java.io.FileNotFoundException;
 import java.util.Map;
 
-public class LeaderboardGlobal  {
+public class Leaderboard {
 
 
     DiscordApi api;
@@ -14,7 +14,7 @@ public class LeaderboardGlobal  {
     // Enregistre le dernier score et l'utilisateur qui l'a atteint
     LeaderboardData leaderboard;
 
-    public LeaderboardGlobal(DiscordApi api) {
+    public Leaderboard(DiscordApi api) {
         this.api = api;
 
         try {
@@ -42,7 +42,7 @@ public class LeaderboardGlobal  {
                 leaderboard.remove(leaderboard.firstKey());
             }
 
-            Serializateur.serialize(leaderboard, LeaderboardData.getSaveFilepath());
+            leaderboard.save();
             return true;
         }
 
@@ -80,6 +80,13 @@ public class LeaderboardGlobal  {
      */
     public void addPointsToUser(long userId, int pointsToAdd) {
         leaderboard.addPointsToUser(userId, pointsToAdd);
-        Serializateur.serialize(leaderboard, LeaderboardData.getSaveFilepath());
+    }
+
+    public void resetLeaderboard() {
+        leaderboard.resetLeaderboard();
+    }
+
+    public void setPoints(Long userId, int setScore) {
+        leaderboard.setPoints(userId, setScore);
     }
 }

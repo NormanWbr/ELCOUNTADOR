@@ -1,6 +1,5 @@
-package be.wamberchies.LeaderBoardGlobal;
+package be.wamberchies.leaderboard;
 
-import java.io.FileNotFoundException;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Map;
@@ -24,13 +23,6 @@ public class LeaderboardData implements Serializable {
     }
 
     /**
-     * Reset the leaderboard
-     */
-    public void reset() {
-        leaderboard = new TreeMap<>();
-    }
-
-    /**
      * Add a score to the leaderboard
      * @param score score to add
      * @param userID ID of the user who got the score
@@ -38,6 +30,7 @@ public class LeaderboardData implements Serializable {
     public void put(int score, long userID) {
         leaderboard.put(score, userID);
 
+        save();
     }
 
     /**
@@ -46,6 +39,7 @@ public class LeaderboardData implements Serializable {
      */
     public void remove(int score) {
         leaderboard.remove(score);
+        save();
     }
 
     /**
@@ -74,5 +68,22 @@ public class LeaderboardData implements Serializable {
         } else {
             userPoints.put(userId, pointsToAdd);
         }
+
+        save();
+    }
+
+    public void resetLeaderboard() {
+        userPoints = new TreeMap<>();
+        leaderboard = new TreeMap<>();
+        save();
+    }
+
+    public void setPoints(Long userId, int setScore) {
+        userPoints.put(userId, setScore);
+        save();
+    }
+
+    public void save() {
+        Serializateur.serialize(this, SAVE_FILEPATH);
     }
 }
