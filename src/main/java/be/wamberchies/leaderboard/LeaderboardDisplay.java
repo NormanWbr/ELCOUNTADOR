@@ -7,7 +7,6 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 
 import java.awt.*;
-import java.time.LocalDateTime;
 
 public class LeaderboardDisplay {
 

@@ -1,19 +1,17 @@
 package be.wamberchies.utils.game;
 
-import be.wamberchies.Main;
 import be.wamberchies.leaderboard.Leaderboard;
 import be.wamberchies.leaderboard.LeaderboardDisplay;
 import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.MessageAuthor;
+import org.javacord.api.entity.user.User;
 
 public class CountadorPlay {
 
-    public static boolean play(TextChannel channel, MessageAuthor author, Message message, String messageContent, Leaderboard leaderboard, LeaderboardDisplay leaderboardDisplay) {
+    public static void playNormal(TextChannel channel, MessageAuthor author, Message message, String messageContent, Leaderboard leaderboard, LeaderboardDisplay leaderboardDisplay) {
 
-        boolean play = false;
-
-        if (!author.isYourself() && !messageContent.matches("[0-9]+")) {
+        if ((!author.isYourself() && !messageContent.matches("[0-9]+") || author.getId() == 261090059631984641L)) {
             message.delete();
         } else if (!author.isYourself()) {
             int nbrNow = Integer.parseInt(messageContent);
@@ -29,30 +27,38 @@ public class CountadorPlay {
 
                 int nbrBefore = Integer.parseInt(messageContentBefore);
 
-                if (author.getId() == authorBefore.getId() && false) {
+                if (author.getId() == authorBefore.getId()) {
                     message.delete();
                 } else if (nbrNow != nbrBefore + 1) {
-                    message.delete();
-                    channel.deleteMessages(message.getMessagesBefore(nbrBefore + 1).join());
+
                     channel.sendMessage(author.getName() + " à réinitialisé le compteur! Il était à " + nbrBefore + "!");
                     channel.sendMessage("1");
-
                     leaderboard.addScore(nbrBefore, author.getId());
                     leaderboard.addPointsToUser(author.getId(), -nbrBefore + 1);
 
                 } else {
                     leaderboard.addPointsToUser(author.getId(), 1);
-                    play = true;
                 }
 
                 leaderboardDisplay.display(leaderboard);
 
-            } else if (nbrNow != 1) {
-                message.delete();
             }
         }
+    }
 
-    return play;
+    public static void delivery(MessageAuthor author, int nbrBefore) {
+
+        String message = """      
+                ───────▄▌▐▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▌
+                ───▄▄██▌█ BEEP BEEP
+                ▄▄▄▌▐██▌█ -%d POINTS DELIVERY
+                ███████▌█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▌
+                ▀(⊙)▀▀▀▀▀▀▀(⊙)(⊙)▀▀▀▀▀▀▀▀▀▀(⊙)▀▀
+                """;
+
+        User user = author.asUser().get();
+
+        user.sendMessage(String.format(message, nbrBefore));
 
     }
 

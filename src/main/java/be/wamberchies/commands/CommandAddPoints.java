@@ -18,6 +18,7 @@ public class CommandAddPoints implements CommandExecutor {
             Long id = users.get(0).getId();
             try {
                 leaderboardGlobal.addPointsToUser(id, Integer.parseInt(args[args.length - 1]));
+                System.out.println("Added " + args[args.length - 1] + " points to " + id);
             } catch (NumberFormatException e) {
                 event.getChannel().sendMessage("Format de commande non valide");
             }

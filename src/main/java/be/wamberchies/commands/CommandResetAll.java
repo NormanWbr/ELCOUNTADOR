@@ -10,5 +10,6 @@ public class CommandResetAll implements CommandExecutor {
     @Override
     public void run(MessageCreateEvent event, Command command, String[] args, Leaderboard leaderboardGlobal ) {
         leaderboardGlobal.resetLeaderboard();
+        System.out.println("Leaderboard resetted by " + event.getMessageAuthor().getDisplayName());
     }
 }

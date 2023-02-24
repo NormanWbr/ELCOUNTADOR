@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="RJTBot" />
         <module name="EL_COUNTADOR_BETA" />
+        <module name="ELCOUNTADOR" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>

@@ -17,6 +17,7 @@ public class CommandSetPoints implements CommandExecutor {
             Long id = users.get(0).getId();
             try {
                 leaderboardGlobal.setPoints(id, Integer.parseInt(args[args.length - 1]));
+                System.out.println("Points set to " + args[args.length - 1] + " for user " + id);
             } catch (NumberFormatException e) {
                 event.getChannel().sendMessage("Format de commande non valide");
             }
