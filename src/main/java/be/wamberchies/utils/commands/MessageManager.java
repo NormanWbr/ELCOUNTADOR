@@ -1,8 +1,11 @@
 package be.wamberchies.utils.commands;
 
 import be.wamberchies.Main;
-import be.wamberchies.commands.*;
+import be.wamberchies.commands.CommandBlacklist;
+import be.wamberchies.commands.CommandClear;
+import be.wamberchies.commands.CommandUnblacklist;
 import be.wamberchies.commands.compteur.CommandSetComptor;
+import be.wamberchies.commands.compteur.CommandTogglePenalty;
 import be.wamberchies.commands.leaderboard.CommandAddPoints;
 import be.wamberchies.commands.leaderboard.CommandRemovePoint;
 import be.wamberchies.commands.leaderboard.CommandResetAll;
@@ -63,6 +66,12 @@ public class MessageManager {
                 "Unblack list un utilisateur",
                 new CommandUnblacklist(),
                 "unblacklist"
+        ));
+        registry.addCommand(new Command (
+                "togglePenalty",
+                "active ou désactive les pénalités avec l'édition et la suppression de message",
+                new CommandTogglePenalty(),
+                "togglePenalty"
         ));
     }
 

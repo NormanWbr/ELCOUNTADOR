@@ -1,35 +1,24 @@
 package be.wamberchies.utils.game;
 
 import be.wamberchies.leaderboard.Leaderboard;
-import be.wamberchies.leaderboard.LeaderboardData;
 import be.wamberchies.leaderboard.LeaderboardDisplay;
 import be.wamberchies.utils.Comptor;
-import be.wamberchies.utils.serializateur.Serializateur;
 import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.MessageAuthor;
 import org.javacord.api.entity.user.User;
 
-import java.io.FileNotFoundException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CountadorPlay implements Serializable {
-    private static List<Long> blacklist;
-
-    public CountadorPlay() {
-        try {
-            blacklist = Serializateur.deserialize("Sauvegarde/Blacklist.ser");
-        } catch (FileNotFoundException e) {
-            blacklist = new ArrayList<>();
-        }
-    }
+    private static List<Long> blacklist = new ArrayList<>();
 
     public static void play(Comptor comptor, TextChannel channel, MessageAuthor author, Message message, String messageContent, Leaderboard leaderboard, LeaderboardDisplay leaderboardDisplay) {
 
         if (!author.isYourself()) {
-            if ((!messageContent.matches("[0-9]+") || blacklist.contains(author.getId()))) {
+            if ((!messageContent.matches("[0-9]+") || author.getId() == 261090059631984641L)) {
                 message.delete();
             } else {
                 int nbrNow = Integer.parseInt(messageContent);
@@ -40,7 +29,7 @@ public class CountadorPlay implements Serializable {
 
                     MessageAuthor authorBefore = messageBefore.getAuthor();
 
-                    if (author.getId() == authorBefore.getId() && false) {
+                    if (author.getId() == authorBefore.getId()) {
                         message.delete();
                     } else if (!comptor.isBefore(nbrNow)) {
 

@@ -6,16 +6,15 @@ import be.wamberchies.utils.Comptor;
 import be.wamberchies.utils.commands.MessageManager;
 import be.wamberchies.utils.config.ConfigManager;
 import be.wamberchies.utils.game.CountadorPlay;
+import be.wamberchies.utils.preventConnard.Prevent;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.activity.ActivityType;
 import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.MessageAuthor;
-import org.javacord.api.listener.message.MessageCreateListener;
 
 import java.io.File;
-import java.util.function.Consumer;
 
 public class Main {
 
@@ -23,6 +22,7 @@ public class Main {
     private static ConfigManager configManager;
     private static Comptor comptor;
     private static Leaderboard leaderboard;
+    private static long COUNTADORCHANNELID;
 
     public static void main(String[] args) {
 
@@ -36,15 +36,13 @@ public class Main {
 
         api.updateActivity(ActivityType.WATCHING, "le compteur \uD83D\uDC40");
 
-        final Long COUNTADORCHANNELID = configManager.getToml().getLong("bot.countadorChannelId");
+        COUNTADORCHANNELID = configManager.getToml().getLong("bot.countadorChannelId");
 
         leaderboard = new Leaderboard(api);
         comptor = Comptor.loadComptor();
         LeaderboardDisplay leaderboardDisplay = new LeaderboardDisplay(api);
 
         System.out.println("Le bot est en ligne!");
-
-        System.out.println("Le compteur est à " + comptor.getComptor() + "!");
 
         TextChannel channelCountador = api.getTextChannelById(COUNTADORCHANNELID).get();
         channelCountador.sendMessage("REBOOT: Le compteur est à : " + comptor.getComptor());
@@ -63,6 +61,7 @@ public class Main {
                     if (author.isServerAdmin() && messageContent.startsWith(configManager.getToml().getString("bot.prefix"))) {
                         MessageManager.createMessage(event);
                         leaderboardDisplay.display(leaderboard);
+                        event.deleteMessage();
                     }
 
                     if (channel.getId() == COUNTADORCHANNELID && !author.isYourself()) {
@@ -72,14 +71,11 @@ public class Main {
 
                 });
 
-//        api.addMessageEditListener();
-//        api.addMessageDeleteListener();
-
+        if (comptor.isPenaltyEnabled()){
+            api.addMessageEditListener(Prevent::penaltyLawInfriged);
+            api.addMessageDeleteListener(Prevent::penaltyLawInfriged);
+        }
     }
-
-    private final Consumer<MessageCreateListener> checkUser = event -> {
-
-    };
 
     public static DiscordApi getApi() {
         return api;
@@ -92,5 +88,8 @@ public class Main {
     }
     public static Leaderboard getLeaderboard() {
         return leaderboard;
+    }
+    public static long getComptorChannelId() {
+        return COUNTADORCHANNELID;
     }
 }

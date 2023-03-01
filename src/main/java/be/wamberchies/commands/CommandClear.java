@@ -1,7 +1,5 @@
 package be.wamberchies.commands;
 
-import be.wamberchies.Main;
-import be.wamberchies.leaderboard.Leaderboard;
 import be.wamberchies.utils.commands.Command;
 import be.wamberchies.utils.commands.CommandExecutor;
 import org.javacord.api.event.message.MessageCreateEvent;
