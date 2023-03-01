@@ -71,24 +71,26 @@ public class Main {
 
                 });
 
-        if (comptor.isPenaltyEnabled()){
-            api.addMessageEditListener(Prevent::penaltyLawInfriged);
-            api.addMessageDeleteListener(Prevent::penaltyLawInfriged);
-        }
+        api.addMessageEditListener(Prevent::penaltyLawInfriged);
+        api.addMessageDeleteListener(Prevent::penaltyLawInfriged);
     }
 
     public static DiscordApi getApi() {
         return api;
     }
+
     public static ConfigManager getConfigManager() {
         return configManager;
     }
+
     public static Comptor getComptor() {
         return comptor;
     }
+
     public static Leaderboard getLeaderboard() {
         return leaderboard;
     }
+
     public static long getComptorChannelId() {
         return COUNTADORCHANNELID;
     }

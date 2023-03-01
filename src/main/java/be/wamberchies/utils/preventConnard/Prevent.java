@@ -2,48 +2,38 @@ package be.wamberchies.utils.preventConnard;
 
 import be.wamberchies.Main;
 import be.wamberchies.leaderboard.Leaderboard;
-import org.javacord.api.entity.auditlog.AuditLog;
+import be.wamberchies.utils.Comptor;
 import org.javacord.api.entity.auditlog.AuditLogActionType;
 import org.javacord.api.entity.auditlog.AuditLogEntry;
 import org.javacord.api.entity.channel.TextChannel;
-import org.javacord.api.entity.message.MessageAuthor;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.channel.TextChannelEvent;
 import org.javacord.api.event.message.CertainMessageEvent;
 import org.javacord.api.event.message.OptionalMessageEvent;
 
-import java.awt.desktop.UserSessionEvent;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 public class Prevent {
 
-    public static void penaltyLawInfriged(OptionalMessageEvent event) {
+    /**
+     * This method is used to prevent connard from deleting or editing messages in the comptor channel
+     *
+     * @param event the event that triggered the method
+     * @param <T>   the type of the event
+     */
+    public static <T extends TextChannelEvent> void penaltyLawInfriged(T event) {
+        Comptor comptor = Comptor.loadComptor();
+        long channelId = event.getChannel().getId();
+        User user = null;
 
-        if (event.getChannel().getId() == Main.getComptorChannelId()) {
-            long channelId = Main.getComptorChannelId();
-            Server server = event.getServer().get();
-            List<AuditLogEntry> auditLog = server.getAuditLog(5).join().getEntries();
-            User user;
-
-            for (AuditLogEntry auditLogEntry : auditLog) {
-                if (auditLogEntry.getReason().get().equals(AuditLogActionType.MESSAGE_DELETE.toString())) {
-                    user = auditLogEntry.getUser().join();
-                    penaltyLawInfrigedChannel(event, user);
-                }
+        if (channelId == Main.getComptorChannelId() && comptor.isPenaltyEnabled()) {
+            if (event instanceof OptionalMessageEvent) {
+                user = getDeleteEventUser((OptionalMessageEvent) event);
+            } else if (event instanceof CertainMessageEvent) {
+                user = getEditEventUser((CertainMessageEvent) event);
             }
         }
-    }
-
-    public static void penaltyLawInfriged(CertainMessageEvent event) {
-        if (event.getChannel().getId() == Main.getComptorChannelId()){
-            User user = event.getMessageAuthor().asUser().get();
-            penaltyLawInfrigedChannel(event, user);
-        }
-    }
-
-    private static void penaltyLawInfrigedChannel(TextChannelEvent event, User user) {
 
         if (!user.isYourself()) {
             TextChannel channel = event.getChannel();
@@ -55,6 +45,44 @@ public class Prevent {
             user.sendMessage("Vous avez été sanctionné pour infraction à la loi de la pénalité! (Vous avez perdu tous vos points!)");
             channel.sendMessage("Le compteur est à " + Main.getComptor().getComptor() + "!");
         }
+
     }
 
+    /**
+     * This method is used to get the user who deleted a message in the comptor channel
+     * @param event the event that triggered the method
+     * @return the user who deleted the message
+     */
+    private static User getDeleteEventUser(OptionalMessageEvent event) {
+        long idEvent = event.getChannel().getId();
+        long comptorChannelId = Main.getComptorChannelId();
+        User user = null;
+
+        if (idEvent == comptorChannelId) {
+            Server server = event.getServer().get();
+            List<AuditLogEntry> auditLog = server.getAuditLog(5).join().getEntries();
+
+            String AuditLogActionDelete = AuditLogActionType.MESSAGE_DELETE.toString();
+
+            for (AuditLogEntry auditLogEntry : auditLog) {
+                String auditLogActionMessage = auditLogEntry.getType().name();
+
+                if (auditLogActionMessage.equals(AuditLogActionDelete)) {
+                    user = auditLogEntry.getUser().join();
+                    break;
+                }
+            }
+        }
+
+        return user;
+    }
+
+    /**
+     * This method is used to get the user who edited a message in the comptor channel
+     * @param event the event that triggered the method
+     * @return the user who edited the message
+     */
+    private static User getEditEventUser(CertainMessageEvent event) {
+        return event.getMessageAuthor().asUser().get();
+    }
 }
