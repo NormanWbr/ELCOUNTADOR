@@ -2,6 +2,7 @@ package be.wamberchies;
 
 import be.wamberchies.leaderboard.Leaderboard;
 import be.wamberchies.leaderboard.LeaderboardDisplay;
+import be.wamberchies.utils.Comptor;
 import be.wamberchies.utils.commands.MessageManager;
 import be.wamberchies.utils.config.ConfigManager;
 import be.wamberchies.utils.game.CountadorPlay;
@@ -11,13 +12,17 @@ import org.javacord.api.entity.activity.ActivityType;
 import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.MessageAuthor;
+import org.javacord.api.listener.message.MessageCreateListener;
 
 import java.io.File;
+import java.util.function.Consumer;
 
 public class Main {
 
     private static DiscordApi api;
     private static ConfigManager configManager;
+    private static Comptor comptor;
+    private static Leaderboard leaderboard;
 
     public static void main(String[] args) {
 
@@ -33,11 +38,16 @@ public class Main {
 
         final Long COUNTADORCHANNELID = configManager.getToml().getLong("bot.countadorChannelId");
 
-        Leaderboard leaderboard = new Leaderboard(api);
-
+        leaderboard = new Leaderboard(api);
+        comptor = Comptor.loadComptor();
         LeaderboardDisplay leaderboardDisplay = new LeaderboardDisplay(api);
 
         System.out.println("Le bot est en ligne!");
+
+        System.out.println("Le compteur est à " + comptor.getComptor() + "!");
+
+        TextChannel channelCountador = api.getTextChannelById(COUNTADORCHANNELID).get();
+        channelCountador.sendMessage("REBOOT: Le compteur est à : " + comptor.getComptor());
 
         api.addMessageCreateListener(
                 event -> {
@@ -50,21 +60,37 @@ public class Main {
 
                     Message message = event.getMessage();
 
-                    if (channel.getId() == COUNTADORCHANNELID) {
-
-                        CountadorPlay.playNormal(channel, author, message, messageContent, leaderboard, leaderboardDisplay);
-
-                    }
-
                     if (author.isServerAdmin() && messageContent.startsWith(configManager.getToml().getString("bot.prefix"))) {
-                        MessageManager.createMessage(event, leaderboard);
+                        MessageManager.createMessage(event);
                         leaderboardDisplay.display(leaderboard);
                     }
 
+                    if (channel.getId() == COUNTADORCHANNELID && !author.isYourself()) {
+
+                        CountadorPlay.play(comptor, channel, author, message, messageContent, leaderboard, leaderboardDisplay);
+                    }
+
                 });
+
+//        api.addMessageEditListener();
+//        api.addMessageDeleteListener();
+
     }
 
+    private final Consumer<MessageCreateListener> checkUser = event -> {
+
+    };
+
+    public static DiscordApi getApi() {
+        return api;
+    }
     public static ConfigManager getConfigManager() {
         return configManager;
+    }
+    public static Comptor getComptor() {
+        return comptor;
+    }
+    public static Leaderboard getLeaderboard() {
+        return leaderboard;
     }
 }

@@ -1,47 +1,63 @@
 package be.wamberchies.utils.game;
 
 import be.wamberchies.leaderboard.Leaderboard;
+import be.wamberchies.leaderboard.LeaderboardData;
 import be.wamberchies.leaderboard.LeaderboardDisplay;
+import be.wamberchies.utils.Comptor;
+import be.wamberchies.utils.serializateur.Serializateur;
 import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.MessageAuthor;
 import org.javacord.api.entity.user.User;
 
-public class CountadorPlay {
+import java.io.FileNotFoundException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
-    public static void playNormal(TextChannel channel, MessageAuthor author, Message message, String messageContent, Leaderboard leaderboard, LeaderboardDisplay leaderboardDisplay) {
+public class CountadorPlay implements Serializable {
+    private static List<Long> blacklist;
 
-        if ((!author.isYourself() && !messageContent.matches("[0-9]+") || author.getId() == 261090059631984641L)) {
-            message.delete();
-        } else if (!author.isYourself()) {
-            int nbrNow = Integer.parseInt(messageContent);
+    public CountadorPlay() {
+        try {
+            blacklist = Serializateur.deserialize("Sauvegarde/Blacklist.ser");
+        } catch (FileNotFoundException e) {
+            blacklist = new ArrayList<>();
+        }
+    }
 
-            //A MODIFIER AVEC LE SERIAL PLUS TARD
-            Message messageBefore = message.getMessagesBeforeAsStream().findFirst().orElse(null);
+    public static void play(Comptor comptor, TextChannel channel, MessageAuthor author, Message message, String messageContent, Leaderboard leaderboard, LeaderboardDisplay leaderboardDisplay) {
 
-            if (messageBefore != null) {
+        if (!author.isYourself()) {
+            if ((!messageContent.matches("[0-9]+") || blacklist.contains(author.getId()))) {
+                message.delete();
+            } else {
+                int nbrNow = Integer.parseInt(messageContent);
 
-                MessageAuthor authorBefore = messageBefore.getAuthor();
+                Message messageBefore = message.getMessagesBeforeAsStream().findFirst().orElse(null);
 
-                String messageContentBefore = messageBefore.getContent();
+                if (messageBefore != null) {
 
-                int nbrBefore = Integer.parseInt(messageContentBefore);
+                    MessageAuthor authorBefore = messageBefore.getAuthor();
 
-                if (author.getId() == authorBefore.getId()) {
-                    message.delete();
-                } else if (nbrNow != nbrBefore + 1) {
+                    if (author.getId() == authorBefore.getId() && false) {
+                        message.delete();
+                    } else if (!comptor.isBefore(nbrNow)) {
 
-                    channel.sendMessage(author.getName() + " à réinitialisé le compteur! Il était à " + nbrBefore + "!");
-                    channel.sendMessage("1");
-                    leaderboard.addScore(nbrBefore, author.getId());
-                    leaderboard.addPointsToUser(author.getId(), -nbrBefore + 1);
+                        channel.sendMessage(author.getName() + " à réinitialisé le compteur! Il était à " + comptor.getComptor() + "!");
+                        channel.sendMessage("Le compteur est à 0!");
+                        leaderboard.addScore(comptor.getComptor(), author.getId());
+                        leaderboard.addPointsToUser(author.getId(), -comptor.getComptor() + 1);
+                        comptor.reset();
 
-                } else {
-                    leaderboard.addPointsToUser(author.getId(), 1);
+                    } else {
+                        leaderboard.addPointsToUser(author.getId(), 1);
+                        comptor.increment();
+                    }
+
+                    leaderboardDisplay.display(leaderboard);
+
                 }
-
-                leaderboardDisplay.display(leaderboard);
-
             }
         }
     }
@@ -62,4 +78,11 @@ public class CountadorPlay {
 
     }
 
+    public static void setBlacklist(List<Long> blacklist) {
+        CountadorPlay.blacklist = blacklist;
+    }
+
+    public static List<Long> getBlacklist() {
+        return blacklist;
+    }
 }

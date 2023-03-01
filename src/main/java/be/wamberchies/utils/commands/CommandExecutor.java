@@ -5,6 +5,6 @@ import org.javacord.api.event.message.MessageCreateEvent;
 
 public interface CommandExecutor {
 
-        void run(MessageCreateEvent event, Command command , String[] args, Leaderboard leaderboardGlobal);
+        void run(MessageCreateEvent event, Command command , String[] args);
 
 }
