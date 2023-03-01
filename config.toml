@@ -1,6 +1,6 @@
 [bot]
 prefix = "!"
-token = "MTA3Nzg3Njc0OTcyMDg4MzI2MA.Gr5avl.ZAZm3PeyGdb_umJ_6H5gcG9yUY8Mo77F42eRCU"
+token = ""
 countadorChannelId = 1077880179097092136
 countadorAdminChannelId = 1078085640366866532
 leaderboardChannel = 1078027007692116008
