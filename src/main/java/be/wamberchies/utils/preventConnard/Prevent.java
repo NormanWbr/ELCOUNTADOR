@@ -28,7 +28,7 @@ public class Prevent {
             User user;
 
             for (AuditLogEntry auditLogEntry : auditLog) {
-                if (auditLogEntry.getReason().get() == AuditLogActionType.MESSAGE_DELETE.toString()) {
+                if (auditLogEntry.getReason().get().equals(AuditLogActionType.MESSAGE_DELETE.toString())) {
                     user = auditLogEntry.getUser().join();
                     penaltyLawInfrigedChannel(event, user);
                 }
