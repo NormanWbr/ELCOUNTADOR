@@ -49,9 +49,9 @@ public class Prevent {
     }
 
     /**
-     * This method is used to get the user who deleted a message in the comptor channel
+     * This method is used to get the last user who deleted a message
      * @param event the event that triggered the method
-     * @return the user who deleted the message
+     * @return the last user who deleted a message
      */
     private static User getDeleteEventUser(OptionalMessageEvent event) {
         long idEvent = event.getChannel().getId();
