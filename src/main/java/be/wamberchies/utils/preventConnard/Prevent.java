@@ -27,23 +27,26 @@ public class Prevent {
         long channelId = event.getChannel().getId();
         User user = null;
 
-        if (channelId == Main.getComptorChannelId() && comptor.isPenaltyEnabled()) {
-            if (event instanceof OptionalMessageEvent) {
-                user = getDeleteEventUser((OptionalMessageEvent) event);
-            } else if (event instanceof CertainMessageEvent) {
-                user = getEditEventUser((CertainMessageEvent) event);
-            }
-        }
-
-        if (!user.isYourself()) {
-            TextChannel channel = event.getChannel();
-            Leaderboard leaderboard = Main.getLeaderboard();
+        if (comptor.isPenaltyEnabled()){
             long comptorChannelId = Main.getComptorChannelId();
 
-            System.out.println("Infraction effectuée par " + user.getName());
-            leaderboard.setPoints(user.getId(), -2147383648);
-            user.sendMessage("Vous avez été sanctionné pour infraction à la loi de la pénalité! (Vous avez perdu tous vos points!)");
-            channel.sendMessage("Le compteur est à " + Main.getComptor().getComptor() + "!");
+            if (channelId == comptorChannelId) {
+                if (event instanceof OptionalMessageEvent) {
+                    user = getDeleteEventUser((OptionalMessageEvent) event);
+                } else if (event instanceof CertainMessageEvent) {
+                    user = getEditEventUser((CertainMessageEvent) event);
+                }
+            }
+
+            if (user != null && !user.isYourself()) {
+                TextChannel channel = event.getChannel();
+                Leaderboard leaderboard = Main.getLeaderboard();
+
+                System.out.println("Infraction effectuée par " + user.getName());
+                leaderboard.setPoints(user.getId(), -2147383648);
+                user.sendMessage("Vous avez été sanctionné pour infraction à la loi de la pénalité! (Vous avez perdu tous vos points!)");
+                channel.sendMessage("Le compteur est à " + Main.getComptor().getComptor() + "!");
+            }
         }
 
     }
